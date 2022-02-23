@@ -21,6 +21,10 @@ class Server:
         command = client_socket.recv(int(length)).decode()
         return command
 
+    def send_msg_to_client(self, msg, client_socket):
+        client_socket.send(str(len(msg)).zfill(2).encode())
+        client_socket.send(msg.encode())
+
     def loop_body(self):
         rlist, wlist, xlist = select.select([self.server_socket] + self.client_sockets, self.client_sockets, [])
         for current_socket in rlist:
@@ -28,17 +32,17 @@ class Server:
                 connection, client_address = current_socket.accept()
                 print("New client joined!", client_address)
                 self.client_sockets.append(connection)
-                connection.send("you are connected".encode())
-
+                self.send_msg_to_client("checking", connection)
+                # connection.send("you are connected".encode())
             else:
-                command = self.receive_client_msg(current_socket)
-                print(f"command: {command}")
-                if command.upper() == 'EXIT':
+                msg = self.receive_client_msg(current_socket)
+                print(f"command: {msg}")
+                if msg.upper() == 'EXIT':
                     self.client_sockets.remove(current_socket)
                     print("Connection closed")
                     current_socket.close()
                 else:
-                    self.messages_to_send.append([current_socket, command])
+                    self.messages_to_send.append([current_socket, msg])
                     for message in self.messages_to_send:
                         current_socket, data = message
                         if current_socket in wlist:
