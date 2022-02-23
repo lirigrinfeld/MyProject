@@ -1,17 +1,52 @@
 import tkinter
 from tkinter import Tk, Canvas, Frame, BOTH, Toplevel
 
-
-# class Rectangle:
-#     def __innit__(self, x, y, height, width, speed, content):
-#         self.x = x
-#         self.y = y
-#         self.height = height
-#         self.width = width
-#         self.speed = speed
-#         self.content = content
+class BBox:
+    def __init__(self, minx, miny, maxx, maxy):
+        self.minx = minx
+        self.maxx = maxx
+        self.miny = miny
+        self.maxy = maxy
 
 
+class Rectangle:
+    def __init__(self, x, y, height, width, speed, content):
+        self.x = x
+        self.y = y
+        self.height = height
+        self.width = width
+        self.speed = speed
+        self.content = content
+
+    def in_bbox(self, bbox):
+        if self.x >= bbox.minx and self.x < bbox.maxx and self.y >=bbox.miny and self.y <bbox.maxy:
+            return True
+        if self.x + self.width >= bbox.minx and self.x + self.width < bbox.maxx and self.y + self.height >= bbox.miny and self.y + self.height < bbox.max:
+            return True
+        return False
+
+
+class Scene:
+    def __init__(self, rectangles):
+        self.rectangles = rectangles
+
+
+    def draw(self):
+
+    def clear(self):
+
+
+class screen:
+
+    def __init__(self, id, bbox_360):
+        self.id = id
+        self.bbox = bbox_360
+
+    def draw(self, scene, draw_panel):
+        for obj in scene:
+            if obj.in_bbox(self.bbox)
+                obj.draw(self.bbox, draw_panel)
+                # liri sus rezah liri boai habita ani raev;
 class SceneObject:
     def __init__(self, generator_func):
         self.id = id
@@ -26,12 +61,12 @@ class SceneObject:
         self.obj = None
 
 
-class Rectangle(SceneObject):
-    def __init__(self, id, generator_func):
-        super(Rectangle, self).__init__(id, generator_func)
-
-    def draw_obj(self, params):
-        self.generator_func(params)
+# class Rectangle(SceneObject):
+#     def __init__(self, id, generator_func):
+#         super(Rectangle, self).__init__(id, generator_func)
+#
+#     def draw_obj(self, params):
+#         self.generator_func(params)
 
 
 class SceneManager:
@@ -49,7 +84,7 @@ class SceneManager:
         self.next = (self.current + 1) % self.num_of_screens
         self.status = 0
 
-        # what is 25
+        # 25- time sharing- 25 ms
         self.tk.after(25, self.draw)
 
     def clear(self):
