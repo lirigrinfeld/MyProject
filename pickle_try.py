@@ -1,8 +1,14 @@
 import pickle
 
 import recangle
-from recangle import *
 
+# file, BloB, Scene
+# file->Scene : read_from_file
+# Scene->File : write_to_file
+# Scene->Blob : serialize_to_object
+# Blob->Scene : deserialize_from_object
+
+# file->Blob : read_from_file ... serialize_to_object
 
 
 class LirisFileHandler:
@@ -31,15 +37,13 @@ class LirisFileHandler:
         pickle.dump(data, file)
 
     def deserialize_from_file(self, file):
-        # dump information to that file
-        data = pickle.load(file)
-        return data
+        return pickle.load(file)
 
     def serialize_to_object(self, object_model):
         return pickle.dumps(object_model)
 
-    def deserialize_from_object(self):
-        return pickle.loads(self.serialize_to_object())
+    def deserialize_from_object(self, data):
+        return pickle.loads(data)
 
 
 def main():
