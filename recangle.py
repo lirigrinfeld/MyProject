@@ -22,9 +22,9 @@ class Rectangle:
         return f"[{self.x}, {self.y}, {self.height}, {self.width}, {self.speed}, {self.content}]"
 
     def in_bbox(self, bbox):
-        if self.x >= bbox.minx and self.x < bbox.maxx and self.y >=bbox.miny and self.y <bbox.maxy:
+        if (self.x >= bbox.minx) and (self.x < bbox.maxx) and (self.y >= bbox.miny) and (self.y < bbox.maxy):
             return True
-        if self.x + self.width >= bbox.minx and self.x + self.width < bbox.maxx and self.y + self.height >= bbox.miny and self.y + self.height < bbox.max:
+        if (self.x + self.width >= bbox.minx) and (self.x + self.width < bbox.maxx) and (self.y + self.height >= bbox.miny) and (self.y + self.height < bbox.max):
             return True
         return False
 

@@ -14,7 +14,6 @@ class GuiScreen:
         self.initUI(res_x, res_y, pos_x, pos_y)
         self.rect = None
 
-
     def initUI(self, res_x, res_y, pos_x, pos_y):
         self.root.geometry(f"{res_x}x{res_y}+{pos_x}+{pos_y}")
         self.canvas = Canvas(self.root)
@@ -85,9 +84,6 @@ class Client:
         while True:
             rlist, wlist, xlist = select.select([self.client_socket], [], [], 0.01)
             for current_socket in rlist:
-                # I am the current socket:
-                # data = current_socket.recv(1024)
-                # print(data.decode())
                 self.scene = pickle.loads(self.get_binary_msg_from_server())
                 print(self.scene)
                 self.draw_screen()
@@ -103,7 +99,6 @@ def main():
 
     c = Client(root)
     root.after(40, c.iteration_body)
-    # c.body()
 
     root.mainloop()
 
