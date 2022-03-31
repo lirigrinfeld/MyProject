@@ -28,6 +28,9 @@ class Rectangle:
             return True
         return False
 
+    def draw(self, canvas):
+        self.rect = canvas.create_rectangle(self.x, self.y, self.x + self.width, self.y + self.height, outline="#fb0", fill="#fb0")
+
 
 class Scene:
     def __init__(self, rectangles):
@@ -39,8 +42,9 @@ class Scene:
             to_string = to_string + self.rectangles[i].__str__()
         return to_string
 
-    def draw(self):
-        pass
+    def draw(self, canvas):
+        for rectangle in self.rectangles:
+            rectangle.draw(canvas)
 
     def clear(self):
         pass
@@ -54,10 +58,10 @@ class Screen:
     def __str__(self):
         return f"[{str(self.id)}, {self.bbox.__str__()}]"
 
-    def draw(self, scene, draw_panel):
+    def draw(self, scene, canvas):
         for obj in scene:
             if obj.in_bbox(self.bbox):
-                obj.draw(self.bbox, draw_panel)
+                obj.draw(self.bbox, canvas)
 
 
 def main():
