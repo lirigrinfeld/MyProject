@@ -2,10 +2,25 @@ import pickle_try
 import recangle
 import socket
 import select
+import pyautogui
+
+
+class BBox:
+    def __init__(self, minx, miny, maxx, maxy):
+        self.minx = minx
+        self.maxx = maxx
+        self.miny = miny
+        self.maxy = maxy
+
+    def __str__(self):
+        return f"[{self.minx}, {self.miny}, {self.maxx}, {self.maxy}]"
+
+
+width, height = pyautogui.size()
 
 
 class Server:
-
+    i = 1
     def __init__(self):
         ip = "0.0.0.0"
         port = 8835
@@ -19,6 +34,8 @@ class Server:
 
         file_name = "important.liri"
         self.file_handler = pickle_try.LirisFileHandler(file_name)
+
+        self.screens = {}
 
     def receive_client_msg(self, client_socket):
         data = client_socket.recv(6)
@@ -34,13 +51,23 @@ class Server:
         client_socket.send(str(len(binary_msg)).zfill(6).encode())
         client_socket.send(binary_msg)
 
+    def find_key(self):
+        key_list = list(self.screens.keys())
+        val_list = list(self.screens.values())
+        pos = val_list.index(self.i)
+        pos = val_list.index(self.i)
+        self.i += 1
+        return key_list[pos]
+
     def loop_body(self):
         rlist, wlist, xlist = select.select([self.server_socket] + self.client_sockets, [], [])
         for current_socket in rlist:
             if current_socket is self.server_socket:
                 connection, client_address = current_socket.accept()
-                print("New client joined!", client_address)
+                print(f"New client joined! ", connection)
                 self.client_sockets.append(connection)
+                self.screens[connection] = self.receive_client_msg(connection)
+                print(self.screens)
                 # connection.send("you are connected".encode())
             else:
                 # (object)

@@ -36,8 +36,10 @@ class Client:
         self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.client_socket.connect((ip, port))
 
-        self.client_socket.send(str(len("Im ready")).zfill(6).encode())
-        self.client_socket.send("Im ready".encode())
+        self.num = input('enter the screen number')
+
+        self.client_socket.send(str(len(self.num)).zfill(6).encode())
+        self.client_socket.send(self.num.encode())
 
         self.scene = None
 
