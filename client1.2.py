@@ -7,6 +7,9 @@ import tkinter
 from tkinter import Tk, Canvas, Frame, BOTH, Toplevel
 
 
+import pyautogui
+
+
 class GuiScreen:
     def __init__(self, tk, res_x, res_y, pos_x, pos_y):
         super().__init__()
@@ -45,6 +48,8 @@ class Client:
 
         self.gui_screen = GuiScreen(self.tk, 500, 500, 0, 0)
 
+        self.width, self.height = pyautogui.size()
+
     def send_msg_to_server(self, msg):
         message_length = str(len(msg))
         zfill_message_length = message_length.zfill(6)
@@ -78,22 +83,25 @@ class Client:
             print(self.scene)
             self.gui_screen.draw(self.scene)
 
+            self.send_msg_to_server(str(self.width))
+            self.send_msg_to_server(str(self.height))
+
         rlist == None
 
-        self.tk.after(40, self.iteration_body)
+        self.tk.after(4, self.iteration_body)
 
-    def body(self):
-        while True:
-            rlist, wlist, xlist = select.select([self.client_socket], [], [], 0.01)
-            for current_socket in rlist:
-                self.scene = pickle.loads(self.get_binary_msg_from_server())
-                print(self.scene)
-                self.draw_screen()
-
-            rlist == None
-
-        if msg.upper() == 'EXIT':
-            self.client_socket.close()
+    # def body(self):
+    #     while True:
+    #         rlist, wlist, xlist = select.select([self.client_socket], [], [], 0.01)
+    #         for current_socket in rlist:
+    #             self.scene = pickle.loads(self.get_binary_msg_from_server())
+    #             print(self.scene)
+    #             self.draw_screen()
+    #
+    #         rlist == None
+    #
+    #     if msg.upper() == 'EXIT':
+    #         self.client_socket.close()
 
 
 def main():

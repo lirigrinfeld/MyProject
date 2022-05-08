@@ -16,9 +16,6 @@ class BBox:
         return f"[{self.minx}, {self.miny}, {self.maxx}, {self.maxy}]"
 
 
-width, height = pyautogui.size()
-
-
 class Server:
     i = 1
     def __init__(self):
@@ -31,6 +28,7 @@ class Server:
 
         self.client_sockets = []
         self.messages_to_send = []
+        self.bbox_dict = {}
 
         file_name = "important.liri"
         self.file_handler = pickle_try.LirisFileHandler(file_name)
@@ -51,13 +49,17 @@ class Server:
         client_socket.send(str(len(binary_msg)).zfill(6).encode())
         client_socket.send(binary_msg)
 
-    def find_key(self):
-        key_list = list(self.screens.keys())
-        val_list = list(self.screens.values())
-        pos = val_list.index(self.i)
-        pos = val_list.index(self.i)
-        self.i += 1
-        return key_list[pos]
+    def find_key(self, val):
+        for key, value in self.bbox_dict.items():
+            if val == value:
+                return key
+            return None
+
+    def set_boundaries(self, val):
+        client_socket = self.find_key(val)
+        width = self.receive_client_msg(client_socket)
+        height = self.receive_client_msg(client_socket)
+        return (val-1)*width+1, 0, val*width, height
 
     def loop_body(self):
         rlist, wlist, xlist = select.select([self.server_socket] + self.client_sockets, [], [])
@@ -72,6 +74,8 @@ class Server:
             else:
                 # (object)
                 current_socket.recv(1024)
+                print(self.set_boundaries(1))
+                # לקבל גם מספר ולפי המספר לחשב לו את הגבולות
                 BLoB = self.file_handler.serialize_to_object(self.file_handler.read_from_file())
                 self.send_binary_msg_to_client(BLoB, current_socket)
 def main():
