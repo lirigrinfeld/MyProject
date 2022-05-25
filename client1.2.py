@@ -1,6 +1,8 @@
 import socket
 import select
 import pickle
+
+import protocol
 import recangle
 
 import tkinter
@@ -34,36 +36,20 @@ class Client:
 
     def __init__(self, root):
         ip = "127.0.0.1"
-        port = 8835
+
+        port = 8830
         self.tk = root
         self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.client_socket.connect((ip, port))
 
-        self.num = input('enter the screen number')
+        self.pHandler = protocol.ProtocolHandler(self.client_socket)
 
-        self.client_socket.send(str(len(self.num)).zfill(6).encode())
-        self.client_socket.send(self.num.encode())
+        self.num = input('enter the screen number')
+        self.pHandler.send_msg_to_server(f"initial info {str(self.num)}")
 
         self.scene = None
 
         self.gui_screen = GuiScreen(self.tk, 500, 500, 0, 0)
-
-        self.width, self.height = pyautogui.size()
-
-    def send_msg_to_server(self, msg):
-        message_length = str(len(msg))
-        zfill_message_length = message_length.zfill(6)
-        message = zfill_message_length + msg
-        self.client_socket.send(message.encode())
-
-    def get_msg_from_server(self):
-        msg_length = self.client_socket.recv(6)
-        msg_length = int(msg_length.decode())
-        msg = self.client_socket.recv(msg_length).decode()
-        while len(msg) < msg_length:
-            msg += self.client_socket.recv(msg_length-len(msg)).decode()
-        print(f"msg_length: {msg_length}. msg: {msg}")
-        return msg
 
     def get_binary_msg_from_server(self):
         msg_length = self.client_socket.recv(6)
@@ -83,12 +69,11 @@ class Client:
             print(self.scene)
             self.gui_screen.draw(self.scene)
 
-            self.send_msg_to_server(str(self.width))
-            self.send_msg_to_server(str(self.height))
+            self.pHandler.send_msg_to_server(str(self.num))
 
         rlist == None
 
-        self.tk.after(4, self.iteration_body)
+        self.tk.after(40, self.iteration_body)
 
     # def body(self):
     #     while True:

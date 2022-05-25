@@ -31,6 +31,9 @@ class Rectangle:
     def draw(self, canvas):
         self.rect = canvas.create_rectangle(self.x, self.y, self.x + self.width, self.y + self.height, outline="#fb0", fill="#fb0")
 
+    def shift(self, dx):
+        self.x += dx
+
 
 class Scene:
     def __init__(self, rectangles):
@@ -48,6 +51,18 @@ class Scene:
 
     def clear(self):
         pass
+
+    def bbox_scene(self, bbox):
+        rect_list = []
+        for rect in self.rectangles:
+            if rect.in_bbox(bbox):
+                rect_list.append(rect)
+        sub_scene = Scene(rect_list)
+        return sub_scene
+
+    def shift(self, dx):
+        for x in self.rectangles:
+            x.shift(dx)
 
 
 class Screen:
