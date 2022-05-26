@@ -16,8 +16,8 @@ class GuiScreen:
     def __init__(self, tk, res_x, res_y, pos_x, pos_y):
         super().__init__()
         self.root = tk
+        self.canvas = None
         self.initUI(res_x, res_y, pos_x, pos_y)
-        self.rect = None
 
     def initUI(self, res_x, res_y, pos_x, pos_y):
         self.root.geometry(f"{res_x}x{res_y}+{pos_x}+{pos_y}")
@@ -25,10 +25,11 @@ class GuiScreen:
         self.canvas.pack(fill=BOTH, expand=1)
 
     def clear(self):
-        self.canvas.delete(self.rect)
-        self.rect = None
+        if self.canvas is not None:
+            self.canvas.delete("all")
 
     def draw(self, scene):
+        self.clear()
         scene.draw(self.canvas)
 
 
@@ -44,8 +45,12 @@ class Client:
 
         self.pHandler = protocol.ProtocolHandler(self.client_socket)
 
-        self.num = input('enter the screen number')
-        self.pHandler.send_msg_to_server(f"initial info {str(self.num)}")
+        self.num = None
+        self.pHandler.send_msg_to_server(f"ready to present")
+        msg = self.pHandler.get_msg_from_server()
+        if "ID" in msg:
+            self.num = msg.replace("ID", "")
+        print(f"My ID: {self.num}")
 
         self.scene = None
 

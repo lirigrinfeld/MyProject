@@ -58,8 +58,9 @@ class top_level():
         self.b1.place(x=100, y=110)
 
     def update_scene(self):
-        self.pHandler.send_msg_to_server(f"command info animation {self.steps.get()}")
+        self.pHandler.send_msg_to_server(f"command info animation {self.steps.get()} {self.iterations.get()}")
         print(self.steps.get(), self.iterations.get())
+        self.top.destroy()
 
 
 class App_Network:

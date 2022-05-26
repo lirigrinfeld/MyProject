@@ -1,3 +1,6 @@
+import copy
+
+
 class BBox:
     def __init__(self, minx, miny, maxx, maxy):
         self.minx = minx
@@ -21,15 +24,21 @@ class Rectangle:
     def __str__(self):
         return f"[{self.x}, {self.y}, {self.height}, {self.width}, {self.speed}, {self.content}]"
 
-    def in_bbox(self, bbox):
+    def in_bbox(self, bbox, scene_width):
         if (self.x >= bbox.minx) and (self.x < bbox.maxx) and (self.y >= bbox.miny) and (self.y < bbox.maxy):
             return True
-        if (self.x + self.width >= bbox.minx) and (self.x + self.width < bbox.maxx) and (self.y + self.height >= bbox.miny) and (self.y + self.height < bbox.max):
+        if ((self.x + self.width) % scene_width >= bbox.minx) and ((self.x + self.width) % scene_width < bbox.maxx) and (self.y + self.height >= bbox.miny) and (self.y + self.height < bbox.maxy):
             return True
         return False
 
     def draw(self, canvas):
-        self.rect = canvas.create_rectangle(self.x, self.y, self.x + self.width, self.y + self.height, outline="#fb0", fill="#fb0")
+        if self.content is None:
+            self.rect = canvas.create_rectangle(max(self.x, 0), self.y, self.x + self.width, self.y + self.height, outline="#fb0", fill="#fb0")
+        else:
+            # read image content
+            # scale to rectangle dimension
+            # self.rect = canvas.create_image()
+            pass
 
     def shift(self, dx):
         self.x += dx
@@ -38,6 +47,7 @@ class Rectangle:
 class Scene:
     def __init__(self, rectangles):
         self.rectangles = rectangles
+        self.width = None
 
     def __str__(self):
         to_string = ''
@@ -54,15 +64,23 @@ class Scene:
 
     def bbox_scene(self, bbox):
         rect_list = []
-        for rect in self.rectangles:
-            if rect.in_bbox(bbox):
-                rect_list.append(rect)
+        if self.rectangles is not None:
+            for rect in self.rectangles:
+                if rect.in_bbox(bbox, self.width):
+                    copied_rect = copy.deepcopy(rect)
+                    copied_rect.shift(-bbox.minx)
+                    rect_list.append(copied_rect)
         sub_scene = Scene(rect_list)
         return sub_scene
 
-    def shift(self, dx):
-        for x in self.rectangles:
-            x.shift(dx)
+    def shift(self, dx, full_width):
+        for r in self.rectangles:
+            r.shift(dx)
+            if r.x >= full_width:
+                r.x = r.x-full_width
+
+    def update_width(self, new_width):
+        self.width = new_width
 
 
 class Screen:
@@ -75,7 +93,7 @@ class Screen:
 
     def draw(self, scene, canvas):
         for obj in scene:
-            if obj.in_bbox(self.bbox):
+            if obj.in_bbox(self.bbox, scene.width):
                 obj.draw(self.bbox, canvas)
 
 

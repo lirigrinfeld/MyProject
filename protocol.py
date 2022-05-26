@@ -5,6 +5,8 @@ class ProtocolHandler:
 
     def receive_client_msg(self):
         data = self.socket.recv(6)
+        if data is None or len(data) == 0:
+            return None
         length = data.decode()
         command = self.socket.recv(int(length)).decode()
         return command
