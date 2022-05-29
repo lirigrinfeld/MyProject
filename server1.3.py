@@ -32,8 +32,8 @@ class Server:
         print("Listening for clients...")
 
         self.client_sockets = []
-        # self.messages_to_send = []
-        # self.bbox_dict = {}
+        self.messages_to_send = []
+        self.bbox_dict = {}
 
         # file_name = "important.liri"
         # self.file_handler = pickle_try.LirisFileHandler(file_name)
@@ -44,16 +44,15 @@ class Server:
 
         self.file_handler = None
 
-    # sends binary message to the client socket
     def send_binary_msg_to_client(self, binary_msg, client_socket):
         client_socket.send(str(len(binary_msg)).zfill(6).encode())
         client_socket.send(binary_msg)
 
-    # def find_key(self, val):
-    #     for key, value in self.screens.items():
-    #         if val == value:
-    #             return key
-    #         return None
+    def find_key(self, val):
+        for key, value in self.screens.items():
+            if val == value:
+                return key
+            return None
 
     def set_boundaries(self, str_val):
         val = int(str_val)
@@ -62,11 +61,35 @@ class Server:
     def scene_export(self):
         for s in self.client_sockets:
             if s in self.screens:
+                pHandler = protocol.ProtocolHandler(s)
                 print(f"handling screen: {s}")
                 sub_scene = recangle.Scene.bbox_scene(self.active_scene, self.set_boundaries(self.screens[s]))
                 print(f"current sub scene = {sub_scene}")
+                pHandler.send_msg_to_client("starting the scene export")
+                contents = []
+                for r in sub_scene.rectangles:
+                    if (r.content != "None") and (r.content not in contents):
+                        contents.append(r.content)
+                print(f"contents: {contents}")
+                pHandler.send_msg_to_client(str(len(contents)))
+                for c in contents:
+                    print(f"pHandler.send_msg_to_client(c): {pHandler.send_msg_to_client(c)}")
+                    pHandler.send_msg_to_client(c)
+                    self.send_file(pHandler.socket, c)
                 BLoB = self.file_handler.serialize_to_object(sub_scene)
                 self.send_binary_msg_to_client(BLoB, s)
+
+    def send_file(self, client_socket, image_path):
+        image_file = open(image_path, 'rb')
+        image_binary = image_file.read(999999)
+        print(f"1: the length of image binary: {len(image_binary)}")
+        while len(image_binary) > 0:
+            self.send_binary_msg_to_client(image_binary, client_socket)
+            image_binary = image_file.read(999999)
+            print(f"2: the length of image binary: {len(image_binary)}")
+        image_file.close()
+        print(f"file closed!! sending '0' to client")
+        client_socket.send("0".zfill(6).encode())
 
     # def clear(self):
     #     empty_scene = recangle.Scene([])
