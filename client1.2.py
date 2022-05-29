@@ -3,13 +3,7 @@ import select
 import pickle
 
 import protocol
-import recangle
-
-import tkinter
 from tkinter import Tk, Canvas, Frame, BOTH, Toplevel
-
-
-import pyautogui
 
 
 class GuiScreen:
@@ -79,19 +73,6 @@ class Client:
         rlist == None
 
         self.tk.after(40, self.iteration_body)
-
-    # def body(self):
-    #     while True:
-    #         rlist, wlist, xlist = select.select([self.client_socket], [], [], 0.01)
-    #         for current_socket in rlist:
-    #             self.scene = pickle.loads(self.get_binary_msg_from_server())
-    #             print(self.scene)
-    #             self.draw_screen()
-    #
-    #         rlist == None
-    #
-    #     if msg.upper() == 'EXIT':
-    #         self.client_socket.close()
 
 
 def main():

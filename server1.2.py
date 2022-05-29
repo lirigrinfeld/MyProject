@@ -32,11 +32,6 @@ class Server:
         print("Listening for clients...")
 
         self.client_sockets = []
-        # self.messages_to_send = []
-        # self.bbox_dict = {}
-
-        # file_name = "important.liri"
-        # self.file_handler = pickle_try.LirisFileHandler(file_name)
 
         self.screens = {}
 
@@ -48,12 +43,6 @@ class Server:
     def send_binary_msg_to_client(self, binary_msg, client_socket):
         client_socket.send(str(len(binary_msg)).zfill(6).encode())
         client_socket.send(binary_msg)
-
-    # def find_key(self, val):
-    #     for key, value in self.screens.items():
-    #         if val == value:
-    #             return key
-    #         return None
 
     def set_boundaries(self, str_val):
         val = int(str_val)
@@ -68,10 +57,6 @@ class Server:
                 BLoB = self.file_handler.serialize_to_object(sub_scene)
                 self.send_binary_msg_to_client(BLoB, s)
 
-    # def clear(self):
-    #     empty_scene = recangle.Scene([])
-    #     self.scene_export(empty_scene)
-
     def loop_body(self):
         rlist, wlist, xlist = select.select([self.server_socket] + self.client_sockets, [], [])
         for current_socket in rlist:
@@ -85,9 +70,6 @@ class Server:
                 pHandler = protocol.ProtocolHandler(current_socket)
                 msg = pHandler.receive_client_msg()
                 print(f"msg: '{msg}'")
-                # if initial_connection...
-                # num = None
-                # num_of_steps = 0
                 if "ready to present" in msg:
                     num = Server.i
                     Server.i += 1
@@ -127,19 +109,6 @@ class Server:
                             print("You need to load a scene before you edit one...")
                     print(f"Server.command: {Server.state}")
                     print(f"Server.file_name: {Server.file_name}")
-
-                # # if ready_to_present ...
-                # if Server.file_name is not None:
-                #     # if self.screens is not [] and Server.command == "start" and Server.file_name is not None:
-                #     for s in self.client_sockets:
-                #         if s in self.screens:
-                #             file_handler = pickle_try.LirisFileHandler(Server.file_name)
-                #             # לקבל גם מספר ולפי המספר לחשב לו את הגבולות
-                #             self.active_scene = file_handler.read_from_file()
-                #             recangle.Scene.shift(self.active_scene, num_of_steps)
-                #             if self.screens is not [] and Server.command == "start":
-                #                 BLoB = file_handler.serialize_to_object(self.active_scene.bbox_scene(self.set_boundaries(self.screens[s])))
-                #                 self.send_binary_msg_to_client(BLoB, s)
 
 
 def main():
