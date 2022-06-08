@@ -1,6 +1,5 @@
 import pickle
-
-import rectangle_draft
+import Module
 
 # file, BloB, Scene
 # file->Scene : read_from_file
@@ -24,20 +23,20 @@ class LirisFileHandler:
         file.close()
 
     def read_from_file(self):
-        file = open(self.file, 'rb')
-        if file.read(5).decode() == LirisFileHandler.magic_number:
-            data = self.deserialize_from_file(file)
+        self.file = open(self.file, 'rb')
+        if self.file.read(5).decode() == LirisFileHandler.magic_number:
+            data = self.deserialize_from_file()
         else:
             data = None
-        file.close()
+        self.file.close()
         return data
 
     def serialize_to_file(self, file, data):
         # dump information to that file
         pickle.dump(data, file)
 
-    def deserialize_from_file(self, file):
-        return pickle.load(file)
+    def deserialize_from_file(self):
+        return pickle.load(self.file)
 
     def serialize_to_object(self, object_model):
         return pickle.dumps(object_model)
@@ -47,20 +46,11 @@ class LirisFileHandler:
 
 
 def main():
-    # ex = LirisFileHandler()
-    # ex.serialize_to_file()
-    # print(ex.deserialize_from_file())
-    #
-    # data = ex.serialize_to_object()
-    # print(data)
-    # print(ex.deserialize_from_object())
+    rect1 = Module.Rectangle(10, 10, 100, 100, 0, "boy.jpg")
+    rect2 = Module.Rectangle(10, 110, 25, 100, 0, "skate.jpg")
+    my_scene = Module.Scene([rect1, rect2])
 
-    rect1 = rectangle_draft.Rectangle(10, 10, 100, 100, 0, "tree_image.jpg")
-    rect2 = rectangle_draft.Rectangle(120, 10, 75, 75, 0, "tree_image.jpg")
-    rect3 = rectangle_draft.Rectangle(120, 10, 50, 50, 0, "None")
-    my_scene = rectangle_draft.Scene([rect1, rect2, rect3])
-
-    ex = LirisFileHandler("NewScene.liri")
+    ex = LirisFileHandler("skater_boy_scene.liri")
     ex.write_to_file(my_scene)
 
     print(ex.read_from_file())

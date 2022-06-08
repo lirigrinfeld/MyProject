@@ -66,7 +66,6 @@ class top_level():
 class App_Network:
     def __init__(self):
         ip = "127.0.0.1"
-
         port = 8830
         self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.client_socket.connect((ip, port))
@@ -76,7 +75,6 @@ class Gui_Client:
     def __init__(self, pHandler):
         self.panel = Gui_Panel(pHandler)
         self.panel.gui_buttons()
-        # self.panel.top.mainloop()
 
     def loop(self):
         # rlist, wlist, xlist = select.select([self.client_socket], [], [], 0.01)

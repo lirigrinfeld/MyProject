@@ -4,6 +4,7 @@ import socket
 import select
 import pyautogui
 import protocol
+import os
 
 
 class BBox:
@@ -32,7 +33,6 @@ class Server:
         print("Listening for clients...")
 
         self.client_sockets = []
-        self.messages_to_send = []
         self.bbox_dict = {}
 
         # file_name = "important.liri"
@@ -43,6 +43,8 @@ class Server:
         self.active_scene = None
 
         self.file_handler = None
+
+        self.contents = {}
 
     def send_binary_msg_to_client(self, binary_msg, client_socket):
         client_socket.send(str(len(binary_msg)).zfill(6).encode())
@@ -66,20 +68,26 @@ class Server:
                 sub_scene = recangle.Scene.bbox_scene(self.active_scene, self.set_boundaries(self.screens[s]))
                 print(f"current sub scene = {sub_scene}")
                 pHandler.send_msg_to_client("starting the scene export")
-                contents = []
                 for r in sub_scene.rectangles:
-                    if (r.content != "None") and (r.content not in contents):
-                        contents.append(r.content)
-                print(f"contents: {contents}")
-                pHandler.send_msg_to_client(str(len(contents)))
-                for c in contents:
-                    print(f"pHandler.send_msg_to_client(c): {pHandler.send_msg_to_client(c)}")
-                    pHandler.send_msg_to_client(c)
-                    self.send_file(pHandler.socket, c)
+                    if (r.content != "None") and (r.content not in self.contents):
+                        self.contents[r.content] = False
+                print(f"contents: {self.contents}")
+                num_of_contents = 0
+                for c in self.contents:
+                    if self.contents[c] is False:
+                        num_of_contents = num_of_contents+1
+                pHandler.send_msg_to_client(str(num_of_contents))
+                for c in self.contents:
+                    if self.contents[c] is False:
+                        pHandler.send_msg_to_client(c)
+                        print(f"c: {c}")
+                        self.send_file(pHandler.socket, c)
+                        self.contents[c] = True
                 BLoB = self.file_handler.serialize_to_object(sub_scene)
                 self.send_binary_msg_to_client(BLoB, s)
 
-    def send_file(self, client_socket, image_path):
+    def send_file(self, client_socket, file_name):
+        image_path = os.path.abspath(file_name)
         image_file = open(image_path, 'rb')
         image_binary = image_file.read(999999)
         print(f"1: the length of image binary: {len(image_binary)}")
@@ -90,10 +98,6 @@ class Server:
         image_file.close()
         print(f"file closed!! sending '0' to client")
         client_socket.send("0".zfill(6).encode())
-
-    # def clear(self):
-    #     empty_scene = recangle.Scene([])
-    #     self.scene_export(empty_scene)
 
     def loop_body(self):
         rlist, wlist, xlist = select.select([self.server_socket] + self.client_sockets, [], [])
@@ -150,19 +154,6 @@ class Server:
                             print("You need to load a scene before you edit one...")
                     print(f"Server.command: {Server.state}")
                     print(f"Server.file_name: {Server.file_name}")
-
-                # # if ready_to_present ...
-                # if Server.file_name is not None:
-                #     # if self.screens is not [] and Server.command == "start" and Server.file_name is not None:
-                #     for s in self.client_sockets:
-                #         if s in self.screens:
-                #             file_handler = pickle_try.LirisFileHandler(Server.file_name)
-                #             # לקבל גם מספר ולפי המספר לחשב לו את הגבולות
-                #             self.active_scene = file_handler.read_from_file()
-                #             recangle.Scene.shift(self.active_scene, num_of_steps)
-                #             if self.screens is not [] and Server.command == "start":
-                #                 BLoB = file_handler.serialize_to_object(self.active_scene.bbox_scene(self.set_boundaries(self.screens[s])))
-                #                 self.send_binary_msg_to_client(BLoB, s)
 
 
 def main():

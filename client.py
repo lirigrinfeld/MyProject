@@ -3,13 +3,10 @@ import select
 import pickle
 
 import protocol
-import recangle
 
-import tkinter
 from tkinter import Tk, Canvas, Frame, BOTH, Toplevel
 
-
-import pyautogui
+import Module
 
 
 class GuiScreen:
@@ -30,10 +27,11 @@ class GuiScreen:
 
     def draw(self, scene):
         self.clear()
-        scene.draw(self.canvas)
+        Module.Scene.draw(scene, self.canvas)
 
 
 class Client:
+    path = f'C:\\Users\\lirig\\PycharmProjects\\'
 
     def __init__(self, root):
         ip = "127.0.0.1"
@@ -65,7 +63,8 @@ class Client:
         return binary_msg
 
     def save_image(self, file_name):
-        with open('./'+file_name, 'wb') as write_image:
+        path = Client.path+file_name
+        with open(path, 'wb') as write_image:
             pic = b''
             len_of_chunk = int(self.client_socket.recv(6).decode())
             while len_of_chunk != 0:  # next chunk of image
@@ -79,6 +78,7 @@ class Client:
                 pic += chunk
             write_image.write(pic)
             write_image.close()
+        print("image_saved")
         return
 
     def iteration_body(self):
@@ -89,15 +89,18 @@ class Client:
             # print(data.decode())
             data = self.pHandler.get_msg_from_server()
             print(f"data: {data}")
-            # if data == "starting the scene export":
-            num_of_contents = int(self.pHandler.get_msg_from_server())
-            print(f"num of contents: {num_of_contents}")
-            for i in range(num_of_contents):
-                file_name = self.pHandler.get_msg_from_server()
-                self.save_image(file_name)
-            self.scene = pickle.loads(self.get_binary_msg_from_server())
-            print(self.scene)
-            self.gui_screen.draw(self.scene)
+            if data == "starting the scene export":
+                num_of_contents = int(self.pHandler.get_msg_from_server())
+                print(f"num of contents: {num_of_contents}")
+                for i in range(num_of_contents):
+                    file_name = self.pHandler.get_msg_from_server()
+                    self.save_image(file_name)
+                self.scene = pickle.loads(self.get_binary_msg_from_server())
+                for i in range(len(self.scene.rectangles)):
+                    if self.scene.rectangles[i].content != 'None':
+                        self.scene.rectangles[i].content = Client.path+self.scene.rectangles[i].content
+                print(self.scene)
+                self.gui_screen.draw(self.scene)
 
             self.pHandler.send_msg_to_server(str(self.num))
 

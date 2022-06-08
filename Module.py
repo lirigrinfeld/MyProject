@@ -22,6 +22,7 @@ class Rectangle:
         self.width = width
         self.speed = speed
         self.content = content
+        self.image = b''
 
     def __str__(self):
         return f"[{self.x}, {self.y}, {self.height}, {self.width}, {self.speed}, {self.content}]"
@@ -34,20 +35,16 @@ class Rectangle:
         return False
 
     def draw(self, canvas):
-        if self.content is None:
+        if self.content == 'None':
             self.rect = canvas.create_rectangle(max(self.x, 0), self.y, self.x + self.width, self.y + self.height, outline="#fb0", fill="#fb0")
         else:
-            # read image content
-            # scale to rectangle dimension
-            # self.rect = canvas.create_image()
-
             # Load an image in the script
             img = Image.open(self.content)
             # Resize the Image using resize method
             resized_image = img.resize((self.width, self.height))
             new_image = ImageTk.PhotoImage(resized_image)
             self.rect = canvas.create_image(self.x, self.y, anchor=NW, image=new_image)
-            pass
+            self.image = new_image
 
     def shift(self, dx):
         self.x += dx
@@ -66,10 +63,7 @@ class Scene:
 
     def draw(self, canvas):
         for rectangle in self.rectangles:
-            rectangle.draw(canvas)
-
-    def clear(self):
-        pass
+            Rectangle.draw(rectangle, canvas)
 
     def bbox_scene(self, bbox):
         rect_list = []
