@@ -65,8 +65,9 @@ class top_level():
 
 class App_Network:
     def __init__(self):
-        ip = "127.0.0.1"
-        port = 8830
+        ip = "192.168.0.131"
+        # ip = "127.0.0.1"
+        port = 8835
         self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.client_socket.connect((ip, port))
 
@@ -77,13 +78,6 @@ class Gui_Client:
         self.panel.gui_buttons()
 
     def loop(self):
-        # rlist, wlist, xlist = select.select([self.client_socket], [], [], 0.01)
-        # for current_socket in rlist:
-            # i am the current socket:
-            # data = current_socket.recv(1024)
-            # print(data.decode())
-            # if button_press:
-            #     protocol.send_msg_to_server(f"command info {self.panel.get_button()}", self.client_socket)
         pass
 
 

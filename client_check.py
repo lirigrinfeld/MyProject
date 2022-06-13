@@ -3,10 +3,13 @@ import select
 import pickle
 
 import protocol
+import Module
 
+import tkinter
 from tkinter import Tk, Canvas, Frame, BOTH, Toplevel
 
-import Module
+
+import pyautogui
 
 
 class GuiScreen:
@@ -27,16 +30,15 @@ class GuiScreen:
 
     def draw(self, scene):
         self.clear()
-        Module.Scene.draw(scene, self.canvas)
+        scene.draw(self.canvas)
 
 
 class Client:
-    path = f'C:\\Users\\lirig\\PycharmProjects\\'
 
     def __init__(self, root):
-        # ip = "127.0.0.1"
-        ip = "192.168.0.131"
-        port = 8835
+        ip = "127.0.0.1"
+
+        port = 8830
         self.tk = root
         self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.client_socket.connect((ip, port))
@@ -62,51 +64,34 @@ class Client:
             binary_msg += self.client_socket.recv(msg_length-len(binary_msg))
         return binary_msg
 
-    def save_image(self, file_name):
-        path = Client.path+file_name
-        with open(path, 'wb') as write_image:
-            pic = b''
-            len_of_chunk = int(self.client_socket.recv(6).decode())
-            while len_of_chunk != 0:  # next chunk of image
-                print(f"len of chunk: {len_of_chunk}")
-                chunk = self.client_socket.recv(int(len_of_chunk))
-                while len(chunk) < int(len_of_chunk):
-                    extra = self.client_socket.recv(int(len_of_chunk) - len(chunk))
-                    chunk = chunk + extra
-                len_of_chunk = int(self.client_socket.recv(6).decode())
-                print(f"2: len of chunk: {len_of_chunk}")
-                pic += chunk
-            write_image.write(pic)
-            write_image.close()
-        print("image_saved")
-        return
-
     def iteration_body(self):
         rlist, wlist, xlist = select.select([self.client_socket], [], [], 0.01)
         for current_socket in rlist:
             # I am the current socket:
             # data = current_socket.recv(1024)
             # print(data.decode())
-            data = self.pHandler.get_msg_from_server()
-            print(f"data: {data}")
-            if data == "starting the scene export":
-                num_of_contents = int(self.pHandler.get_msg_from_server())
-                print(f"num of contents: {num_of_contents}")
-                for i in range(num_of_contents):
-                    file_name = self.pHandler.get_msg_from_server()
-                    self.save_image(file_name)
-                self.scene = pickle.loads(self.get_binary_msg_from_server())
-                for i in range(len(self.scene.rectangles)):
-                    if self.scene.rectangles[i].content is not None:
-                        self.scene.rectangles[i].content = Client.path+self.scene.rectangles[i].content
-                print(self.scene)
-                self.gui_screen.draw(self.scene)
+            self.scene = pickle.loads(self.get_binary_msg_from_server())
+            print(self.scene)
+            self.gui_screen.draw(self.scene)
 
             self.pHandler.send_msg_to_server(str(self.num))
 
         rlist == None
 
         self.tk.after(40, self.iteration_body)
+
+    # def body(self):
+    #     while True:
+    #         rlist, wlist, xlist = select.select([self.client_socket], [], [], 0.01)
+    #         for current_socket in rlist:
+    #             self.scene = pickle.loads(self.get_binary_msg_from_server())
+    #             print(self.scene)
+    #             self.draw_screen()
+    #
+    #         rlist == None
+    #
+    #     if msg.upper() == 'EXIT':
+    #         self.client_socket.close()
 
 
 def main():

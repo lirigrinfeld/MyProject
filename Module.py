@@ -35,7 +35,7 @@ class Rectangle:
         return False
 
     def draw(self, canvas):
-        if self.content == 'None':
+        if self.content is None:
             self.rect = canvas.create_rectangle(max(self.x, 0), self.y, self.x + self.width, self.y + self.height, outline="#fb0", fill="#fb0")
         else:
             # Load an image in the script
